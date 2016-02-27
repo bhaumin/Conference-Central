@@ -59,7 +59,7 @@ It is about tradeoff between these 2 approaches, and I chose #1 above because I 
 
 Task 4: Add a Task
 -------------------
-For this task, the getFeaturedSpeaker() endpoint method was added to get the current featured speaker. Everytime a new session is created and the speaker for that session has more than one sessions, that speaker is stored as a featured speaker in the memcache. Previous featured speaker would be overwritten. Also, he memcache entry is added via a background task implemented using the task queue feature in Google App Engine.
+For this task, the getFeaturedSpeaker() endpoint method was added to get the current featured speaker. Everytime a new session is created and the speaker for that session has more than one sessions, that speaker is stored as a featured speaker in the memcache. Previous featured speaker would be overwritten. Also, the memcache entry is added via a background task implemented using the task queue feature in Google App Engine.
 
 
 How to run and test the App
