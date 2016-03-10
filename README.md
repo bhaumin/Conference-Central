@@ -38,7 +38,7 @@ Following 2 additional queries and its corresponding API endpoints were added:
 
 1. getWishlistSessionsBySpeaker(speaker) -  This gets the sessions in the current user's wishlist filtered by a specified speaker. This query could be useful get all sessions in the user's wishlist by the featured speaker for example. It was implemented by filtering the sessions in the wishlist by the specified speaker.
 
-2. getWishlistSessionsByTopic(topic) - This gets the sessions in the current user's wishlist filtered by a specified topic. This query could be userful for user to quickly see all the sessions they want to attend on a given topic (perhaps that they are most interested in) across all conferences. It was implemented by filtering the sessions in the wishlist by the specified topic which was obtained via the parent conference object for the sessions.
+2. getWishlistSessionsByType(typeofSession) - This gets the sessions in the current user's wishlist filtered by its type. This query could be userful for user to quickly see all the sessions they want to attend of a given type (e.g. workshop, forum, etc.) across all conferences. It was implemented by filtering the sessions in the wishlist by the specified type.
 
 Query Problem - All non-workshop sessions before 7 pm
 
