@@ -20,8 +20,6 @@ For this task, 2 new classes were added - Session (NDB model) and SessionForm (P
 
 The Session class is designed to have an ancestor relationship with its parent Conference object. This allows us to easily get the parent Conference object given a Session object.
 
-In addition, the existing Conference class was also modified to add a new repeated property named sessionKeys to hold the list of all its child session keys. This helps in querying for all sessions for a given conference, as required in the api endpoint getConferenceSessions(websafeConferenceKey).
-
 
 Task 2: Add Sessions to User Wishlist
 --------------------------------------
