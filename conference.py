@@ -659,7 +659,7 @@ class ConferenceApi(remote.Service):
         Session(**data).put()
 
         # queue featured speaker task
-        if data['speaker'] != 'John Doe':
+        if data['speaker'] != SESSION_DEFAULTS['speaker']:
             taskqueue.add(params={'session_key': s_key.urlsafe()},
                           url='/tasks/update_featured_speaker')
 
@@ -676,7 +676,7 @@ class ConferenceApi(remote.Service):
                 if field.name == 'type':
                     setattr(sf, field.name,
                             getattr(SessionType, getattr(session, field.name)))
-                elif field.name == 'startTime' or field.name == 'date':
+                elif field.name in ['startTime', 'date']:
                     setattr(sf, field.name,
                             str(getattr(session, field.name)))
                 else:
@@ -685,26 +685,6 @@ class ConferenceApi(remote.Service):
                 setattr(sf, field.name, session.key.urlsafe())
         sf.check_initialized()
         return sf
-
-
-    # TODO - remove commented method below
-    # def _getSessionsForConference(self, websafeConferenceKey):
-        # """Return all sessions for the requested conference."""
-
-        # get Conference object from request; raise exception if not found
-        # conf = None
-        # try:
-        #    conf = ndb.Key(urlsafe=websafeConferenceKey).get()
-        # finally:
-        #    if not conf:
-        #        raise endpoints.NotFoundException(
-        #            'No conference found with key: %s' %
-        #            websafeConferenceKey)
-
-        # return a list of session keys in this conference
-        # sessions = Session.query(ancestor=ndb.Key(Conference, websafeConferenceKey))
-        # return sessions
-
 
 
     @endpoints.method(SESSION_POST_REQUEST, SessionForm,
@@ -722,7 +702,6 @@ class ConferenceApi(remote.Service):
         """Return all sessions for requested conference (by websafeConferenceKey)."""
 
         sessions = Session.query(ancestor=ndb.Key(urlsafe=request.websafeConferenceKey))
-        # self._getSessionsForConference(request.websafeConferenceKey)
 
         # return SessionForm objects for specified Conference
         return SessionForms(
@@ -736,17 +715,15 @@ class ConferenceApi(remote.Service):
     def getConferenceSessionsByType(self, request):
         """Return sessions of specified type for requested conference."""
 
-        # sessions = self._getSessionsForConference(request.websafeConferenceKey)
-
         if not request.typeOfSession:
             raise endpoints.BadRequestException(
                 "'typeOfSession' field required")
 
-        q = Session.query(ancestor=ndb.Key(urlsafe=request.websafeConferenceKey))
-        q = q.filter(Session.type == request.typeOfSession)
+        sessions = Session.query(ancestor=ndb.Key(urlsafe=request.websafeConferenceKey))
+        sessions = sessions.filter(Session.type == request.typeOfSession)
 
         return SessionForms(
-            items=[self._copySessionToForm(session) for session in q]
+            items=[self._copySessionToForm(session) for session in sessions]
         )
 
 
@@ -869,11 +846,11 @@ class ConferenceApi(remote.Service):
 
         # return SessionForm objects in the current user's wishlist
         # filtered by the given speaker
-        q = Session.query(Session.key.IN(session_keys))
-        q = q.filter(Session.speaker == request.speaker)
+        sessions = Session.query(Session.key.IN(session_keys))
+        sessions = sessions.filter(Session.speaker == request.speaker)
 
         return SessionForms(
-                items=[self._copySessionToForm(session) for session in q])
+                items=[self._copySessionToForm(session) for session in sessions])
 
 
     @endpoints.method(WISHLIST_SESSION_BY_TYPE_GET_REQUEST, SessionForms,
@@ -886,11 +863,11 @@ class ConferenceApi(remote.Service):
 
         # return SessionForm objects in the current user's wishlist
         # filtered by the given type
-        q = Session.query(Session.key.IN(session_keys))
-        q = q.filter(Session.type == request.typeOfSession)
+        sessions = Session.query(Session.key.IN(session_keys))
+        sessions = sessions.filter(Session.type == request.typeOfSession)
 
         return SessionForms(
-                items=[self._copySessionToForm(session) for session in q])
+                items=[self._copySessionToForm(session) for session in sessions])
 
 
     @endpoints.method(message_types.VoidMessage, SessionForms,
@@ -903,24 +880,24 @@ class ConferenceApi(remote.Service):
 
         # implemenation 1:
 
-        q = Session.query()
-        q = q.order(Session.startTime)
-        q = q.filter(Session.startTime < time(19, 00, 00))
-        q = q.filter(Session.type.IN([str(SessionType.LECTURE), str(SessionType.FORUM)]))
+        sessions = Session.query()
+        sessions = sessions.order(Session.startTime)
+        sessions = sessions.filter(Session.startTime < time(19, 00, 00))
+        sessions = sessions.filter(Session.type.IN([str(SessionType.LECTURE), str(SessionType.FORUM)]))
 
         return SessionForms(
-                items=[self._copySessionToForm(session) for session in q])
+                items=[self._copySessionToForm(session) for session in sessions])
 
         # implementation 2:
 
-        # q = Session.query()
-        # q = q.order(Session.startTime)
-        # q = q.filter(Session.startTime < time(19, 00, 00))
+        # sessions = Session.query()
+        # sessions = sessions.order(Session.startTime)
+        # sessions = sessions.filter(Session.startTime < time(19, 00, 00))
 
         # return SessionForm objects for all non-workshop sessions before 7 pm
         # return SessionForms(
         #        items=[self._copySessionToForm(session) for session in
-        #               q if session.type != str(SessionType.WORKSHOP)])
+        #               sessions if session.type != str(SessionType.WORKSHOP)])
 
 
     @staticmethod
@@ -929,12 +906,12 @@ class ConferenceApi(remote.Service):
         at more than one sessions in the same conference"""
         s_key = ndb.Key(urlsafe=wssk)
         session = s_key.get()
-        q = Session.query(ancestor=s_key.parent())
-        q = q.filter(Session.speaker == session.speaker)
-        if (q.count() > 1):
+        sessions = Session.query(ancestor=s_key.parent())
+        sessions = sessions.filter(Session.speaker == session.speaker)
+        if (sessions.count() > 1):
             fs = FeaturedSpeakerMessage()
             fs.speaker = session.speaker
-            fs.sessions = [sess.name for sess in q]
+            fs.sessions = [sess.name for sess in sessions]
             memcache.set(MEMCACHE_FEATURED_SPEAKER_KEY, fs)
 
 
