@@ -8,8 +8,8 @@ conference-app-117522
 
 Requirements
 ------------
-Python: `2.7.x`
-Google App Engine: `1.x`
+- Python: `2.7.x`
+- Google App Engine: `1.x`
 
 
 Task 1: Add Sessions to a Conference
