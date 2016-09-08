@@ -50,7 +50,7 @@ Change the `NOT EQUAL TO` filter for non-workshop sessions to an `IN` filter on 
 **Implemenation 2:**
 The other way is to apply only one inequality filter and then filter out the unwanted results in Python/application code. The advantage of this is that we do not have to worry about adding the new SessionType to the query, in case there is ever a new Session Type that gets added to the system. But the disadvantage is obviously that if the results returned by the just one filter are too many then Python/application code has to filter out a lot of results on the application side which is not very efficient. I implemented this approach as well but didn't decide to use it (I have the code commented out).
 
-It is about tradeoff between these 2 approaches, and I chose #1 above because I believe that chances of there being many new SessionTypes after it is defined once is very very low, but changes of the number of sessions growing in the system is highly likely depending on how big a given conference is.
+It is about tradeoff between these 2 approaches, and I chose #1 above because I believe that chances of there being many new SessionTypes after it is defined initially is very low, but chances of the number of sessions growing in the system is highly likely (esp. for a big conference).
 
 
 Task 4: Add a Task
